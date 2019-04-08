@@ -1,0 +1,25 @@
+{
+  "name": "wasmbuilder",
+  "version": "0.0.2",
+  "description": "Tool to build wasm programs by hand.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "view-source:https://github.com/iden3/wasmbuilder"
+  },
+  "keywords": [
+    "wasm",
+    "script",
+    "generator"
+  ],
+  "author": "Jordi Baylina",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-plugin-mocha": "^5.3.0",
+    "eslint-plugin-webassembly": "^1.8.5"
+  }
+}
