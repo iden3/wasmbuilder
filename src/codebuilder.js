@@ -216,12 +216,17 @@ class CodeBuilder {
     i64_add(op1code, op2code) { return [...op1code, ...op2code, 0x7c]; }
     i64_sub(op1code, op2code) { return [...op1code, ...op2code, 0x7d]; }
     i64_mul(op1code, op2code) { return [...op1code, ...op2code, 0x7e]; }
+    i64_div_s(op1code, op2code) { return [...op1code, ...op2code, 0x7f]; }
     i64_div_u(op1code, op2code) { return [...op1code, ...op2code, 0x80]; }
+    i64_rem_s(op1code, op2code) { return [...op1code, ...op2code, 0x81]; }
+    i64_rem_u(op1code, op2code) { return [...op1code, ...op2code, 0x82]; }
     i64_and(op1code, op2code) { return [...op1code, ...op2code, 0x83]; }
     i64_or(op1code, op2code) { return [...op1code, ...op2code, 0x84]; }
+    i64_xor(op1code, op2code) { return [...op1code, ...op2code, 0x85]; }
     i64_shl(op1code, op2code) { return [...op1code, ...op2code, 0x86]; }
     i64_shr_s(op1code, op2code) { return [...op1code, ...op2code, 0x87]; }
     i64_shr_u(op1code, op2code) { return [...op1code, ...op2code, 0x88]; }
+    i64_extend_i32_s(op1code) { return [...op1code, 0xac]; }
     i64_extend_i32_u(op1code) { return [...op1code, 0xad]; }
 
 
@@ -245,6 +250,7 @@ class CodeBuilder {
     i32_rem_u(op1code, op2code) { return [...op1code, ...op2code, 0x70]; }
     i32_and(op1code, op2code) { return [...op1code, ...op2code, 0x71]; }
     i32_or(op1code, op2code) { return [...op1code, ...op2code, 0x72]; }
+    i32_xor(op1code, op2code) { return [...op1code, ...op2code, 0x73]; }
     i32_shl(op1code, op2code) { return [...op1code, ...op2code, 0x74]; }
     i32_shr_s(op1code, op2code) { return [...op1code, ...op2code, 0x75]; }
     i32_shr_u(op1code, op2code) { return [...op1code, ...op2code, 0x76]; }

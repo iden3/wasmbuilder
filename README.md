@@ -1,6 +1,6 @@
 # wasmbuilder
 
-This is a library that helps to build wasm code by hand.
+Javascript package that helps to build wasm code by hand.
 
 
 ## License
