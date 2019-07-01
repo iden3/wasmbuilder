@@ -17,4 +17,5 @@
     along with wasmbuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-module.exports = require("./src/modulebuilder");
+module.exports.ModuleBuilder = require("./src/modulebuilder");
+module.exports.buildProtoboard = require("./src/protoboard");

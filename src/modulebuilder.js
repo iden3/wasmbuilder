@@ -124,6 +124,7 @@ class ModuleBuilder {
             size = a;
             bytes = b;
         }
+        size = (((size-1)>>3) +1)<<3;       // Align to 64 bits.
         const p = this.free;
         this.free += size;
         if (bytes) {

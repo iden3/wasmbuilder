@@ -49,25 +49,25 @@ class CodeBuilder {
 
     i64_load8_s(idxCode, _offset, _align) {
         const offset = _offset || 0;
-        const align = (_align === undefined) ? 0 : _align;  // 32 bits alignment by default
+        const align = (_align === undefined) ? 0 : _align;  // 8 bits alignment by default
         return [...idxCode, 0x30, align, ...utils.varuint32(offset)];
     }
 
     i64_load8_u(idxCode, _offset, _align) {
         const offset = _offset || 0;
-        const align = (_align === undefined) ? 0 : _align;  // 32 bits alignment by default
+        const align = (_align === undefined) ? 0 : _align;  // 8 bits alignment by default
         return [...idxCode, 0x31, align, ...utils.varuint32(offset)];
     }
 
     i64_load16_s(idxCode, _offset, _align) {
         const offset = _offset || 0;
-        const align = (_align === undefined) ? 1 : _align;  // 32 bits alignment by default
+        const align = (_align === undefined) ? 1 : _align;  // 16 bits alignment by default
         return [...idxCode, 0x32, align, ...utils.varuint32(offset)];
     }
 
     i64_load16_u(idxCode, _offset, _align) {
         const offset = _offset || 0;
-        const align = (_align === undefined) ? 1 : _align;  // 32 bits alignment by default
+        const align = (_align === undefined) ? 1 : _align;  // 16 bits alignment by default
         return [...idxCode, 0x33, align, ...utils.varuint32(offset)];
     }
 
@@ -85,7 +85,7 @@ class CodeBuilder {
 
     i64_load(idxCode, _offset, _align) {
         const offset = _offset || 0;
-        const align = (_align === undefined) ? 3 : _align;  // 32 bits alignment by default
+        const align = (_align === undefined) ? 3 : _align;  // 64 bits alignment by default
         return [...idxCode, 0x29, align, ...utils.varuint32(offset)];
     }
 
