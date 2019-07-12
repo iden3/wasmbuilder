@@ -62,11 +62,14 @@ async function buildProtoboard(builder, defBytes, bitsPerBytes) {
         },
         debug: {
             log32: function (c1) {
+                if (c1<0) c1 = 0x100000000+c1;
                 let s=c1.toString(16);
                 while (s.length<8) s = "0"+s;
                 protoboard.log(s + ": " + c1.toString());
             },
             log64: function (c1, c2) {
+                if (c1<0) c1 = 0x100000000+c1;
+                if (c2<0) c2 = 0x100000000+c2;
                 const n = bigInt(c1) +  bigInt(c2).shiftLeft(32);
                 let s=n.toString(16);
                 while (s.length<16) s = "0"+s;
