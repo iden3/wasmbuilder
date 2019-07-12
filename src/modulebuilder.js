@@ -188,7 +188,7 @@ class ModuleBuilder {
 
     _buildFunctionDeclarations() {
         const entries = [];
-        for (let i=this.nImportFunctions; i< this.nInternalFunctions; i++) {
+        for (let i=this.nImportFunctions; i< this.nImportFunctions + this.nInternalFunctions; i++) {
             entries.push(...utils.varuint32(this.functions[i].signatureIdx));
         }
         return this._buildSection(
@@ -217,7 +217,7 @@ class ModuleBuilder {
 
     _buildCode() {
         const entries = [];
-        for (let i=this.nImportFunctions; i< this.nInternalFunctions; i++) {
+        for (let i=this.nImportFunctions; i< this.nImportFunctions + this.nInternalFunctions; i++) {
             entries.push(this.functions[i].getBody());
         }
         return this._buildSection(

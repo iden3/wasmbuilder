@@ -22,6 +22,11 @@ const bigInt = require("big-integer");
 const ModuleBuilder = require("./modulebuilder");
 const assert = require("assert");
 
+function buf2hex(buffer) { // buffer is an ArrayBuffer
+    return Array.prototype.map.call(new Uint8Array(buffer), x => ("00" + x.toString(16)).slice(-2)).join("");
+}
+
+
 async function buildProtoboard(builder, defBytes, bitsPerBytes) {
     const protoboard = new Protoboard();
 
@@ -32,15 +37,41 @@ async function buildProtoboard(builder, defBytes, bitsPerBytes) {
     protoboard.i32 = new Uint32Array(protoboard.memory.buffer);
 
     const moduleBuilder = new ModuleBuilder();
+
+    const fLog32 = moduleBuilder.addIimportFunction("debug_log32", "debug", "log32");
+    fLog32.addParam("x", "i32");
+    const fLog64 = moduleBuilder.addIimportFunction("debug_log64", "debug", "log64");
+    fLog64.addParam("x", "i32");
+    fLog64.addParam("y", "i32");
+
+    buildLog32(moduleBuilder);
+    buildLog64(moduleBuilder);
+
     builder(moduleBuilder, protoboard);
+
 
     const code = moduleBuilder.build();
 
     const wasmModule = await WebAssembly.compile(code);
 
+    protoboard.log = console.log;
+
     protoboard.instance = await WebAssembly.instantiate(wasmModule, {
         env: {
             "memory": protoboard.memory
+        },
+        debug: {
+            log32: function (c1) {
+                let s=c1.toString(16);
+                while (s.length<8) s = "0"+s;
+                protoboard.log(s + ": " + c1.toString());
+            },
+            log64: function (c1, c2) {
+                const n = bigInt(c1) +  bigInt(c2).shiftLeft(32);
+                let s=n.toString(16);
+                while (s.length<16) s = "0"+s;
+                protoboard.log(s + ": " + n.toString());
+            }
         }
     });
 
@@ -48,6 +79,34 @@ async function buildProtoboard(builder, defBytes, bitsPerBytes) {
     Object.assign(protoboard, moduleBuilder.modules);
 
     return protoboard;
+
+    function buildLog32(module) {
+
+        const f = module.addFunction("log32");
+        f.addParam("x", "i32");
+
+        const c = f.getCodeBuilder();
+        f.addCode(c.call("debug_log32", c.getLocal("x")));
+    }
+
+    function buildLog64(module) {
+
+        const f = module.addFunction("log64");
+        f.addParam("x", "i64");
+
+        const c = f.getCodeBuilder();
+        f.addCode(c.call(
+            "debug_log64",
+            c.i32_wrap_i64(c.getLocal("x")),
+            c.i32_wrap_i64(
+                c.i64_shr_u(
+                    c.getLocal("x"),
+                    c.i64_const(32)
+                )
+            )
+        ));
+    }
+
 }
 
 class Protoboard {
