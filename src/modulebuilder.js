@@ -117,7 +117,7 @@ class ModuleBuilder {
     alloc(a, b) {
         let size;
         let bytes;
-        if (Array.isArray(a) && (typeof(b) === "undefined")) {
+        if ((Array.isArray(a) || ArrayBuffer.isView(a)) && (typeof(b) === "undefined")) {
             size = a.length;
             bytes = a;
         } else {

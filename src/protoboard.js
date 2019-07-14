@@ -33,8 +33,9 @@ async function buildProtoboard(builder, defBytes, bitsPerBytes) {
     protoboard.defBytes = defBytes;
     protoboard.bitsPerBytes = bitsPerBytes || 32;
 
-    protoboard.memory = new WebAssembly.Memory({initial:10000});
+    protoboard.memory = new WebAssembly.Memory({initial:20000});
     protoboard.i32 = new Uint32Array(protoboard.memory.buffer);
+    protoboard.i8 = new Uint8Array(protoboard.memory.buffer);
 
     const moduleBuilder = new ModuleBuilder();
 
@@ -122,6 +123,8 @@ class Protoboard {
         if (typeof length === "undefined") {
             length = this.defBytes;
         }
+        length = (((length-1)>>3) +1)<<3;       // Align to 64 bits.
+
         const res = this.i32[0];
         this.i32[0] += length;
         return res;
