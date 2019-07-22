@@ -152,9 +152,9 @@ class Protoboard {
                 p += 4;
             }
             assert(v.isZero());
-            this.i32[p>>2] = bigInt(nums[i]).shiftRight( (words-1)*this.bitsPerBytes).toJSNumber();
+/*            this.i32[p>>2] = bigInt(nums[i]).shiftRight( (words-1)*this.bitsPerBytes).toJSNumber();
             p += 4;
-        }
+*/        }
 
         return pos;
     }

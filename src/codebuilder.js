@@ -89,6 +89,25 @@ class CodeBuilder {
         return [...idxCode, 0x29, align, ...utils.varuint32(offset)];
     }
 
+
+    i64_store(idxCode, _offset, _align, _codeVal) {
+        let offset, align, codeVal;
+        if (Array.isArray(_offset)) {
+            offset = 0;
+            align = 3;
+            codeVal = _offset;
+        } else if (Array.isArray(_align)) {
+            offset = _offset;
+            align = 3;
+            codeVal = _align;
+        } else if (Array.isArray(_codeVal)) {
+            offset = _offset;
+            align = _align;
+            codeVal = _codeVal;
+        }
+        return [...idxCode, ...codeVal, 0x37, align, ...utils.varuint32(offset)];
+    }
+
     i64_store32(idxCode, _offset, _align, _codeVal) {
         let offset, align, codeVal;
         if (Array.isArray(_offset)) {
@@ -107,22 +126,42 @@ class CodeBuilder {
         return [...idxCode, ...codeVal, 0x3e, align, ...utils.varuint32(offset)];
     }
 
-    i64_store(idxCode, _offset, _align, _codeVal) {
+
+    i64_store16(idxCode, _offset, _align, _codeVal) {
         let offset, align, codeVal;
         if (Array.isArray(_offset)) {
             offset = 0;
-            align = 3;
+            align = 1;
             codeVal = _offset;
         } else if (Array.isArray(_align)) {
             offset = _offset;
-            align = 3;
+            align = 1;
             codeVal = _align;
         } else if (Array.isArray(_codeVal)) {
             offset = _offset;
             align = _align;
             codeVal = _codeVal;
         }
-        return [...idxCode, ...codeVal, 0x37, align, ...utils.varuint32(offset)];
+        return [...idxCode, ...codeVal, 0x3d, align, ...utils.varuint32(offset)];
+    }
+
+
+    i64_store8(idxCode, _offset, _align, _codeVal) {
+        let offset, align, codeVal;
+        if (Array.isArray(_offset)) {
+            offset = 0;
+            align = 0;
+            codeVal = _offset;
+        } else if (Array.isArray(_align)) {
+            offset = _offset;
+            align = 0;
+            codeVal = _align;
+        } else if (Array.isArray(_codeVal)) {
+            offset = _offset;
+            align = _align;
+            codeVal = _codeVal;
+        }
+        return [...idxCode, ...codeVal, 0x3c, align, ...utils.varuint32(offset)];
     }
 
     i32_load8_s(idxCode, _offset, _align) {
@@ -173,6 +212,42 @@ class CodeBuilder {
         return [...idxCode, ...codeVal, 0x36, align, ...utils.varuint32(offset)];
     }
 
+
+    i32_store16(idxCode, _offset, _align, _codeVal) {
+        let offset, align, codeVal;
+        if (Array.isArray(_offset)) {
+            offset = 0;
+            align = 1;
+            codeVal = _offset;
+        } else if (Array.isArray(_align)) {
+            offset = _offset;
+            align = 1;
+            codeVal = _align;
+        } else if (Array.isArray(_codeVal)) {
+            offset = _offset;
+            align = _align;
+            codeVal = _codeVal;
+        }
+        return [...idxCode, ...codeVal, 0x3b, align, ...utils.varuint32(offset)];
+    }
+
+    i32_store8(idxCode, _offset, _align, _codeVal) {
+        let offset, align, codeVal;
+        if (Array.isArray(_offset)) {
+            offset = 0;
+            align = 0;
+            codeVal = _offset;
+        } else if (Array.isArray(_align)) {
+            offset = _offset;
+            align = 0;
+            codeVal = _align;
+        } else if (Array.isArray(_codeVal)) {
+            offset = _offset;
+            align = _align;
+            codeVal = _codeVal;
+        }
+        return [...idxCode, ...codeVal, 0x3a, align, ...utils.varuint32(offset)];
+    }
 
     call(fnName, ...args) {
         const idx = this.module.functionIdxByName[fnName];
