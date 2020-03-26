@@ -20,6 +20,7 @@
 
 const FunctionBuilder = require("./functionbuilder.js");
 const utils = require("./utils.js");
+const { TextEncoder, TextDecode } = require("util");
 
 class ModuleBuilder {
 
