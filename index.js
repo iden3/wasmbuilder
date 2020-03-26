@@ -18,4 +18,5 @@
 */
 
 module.exports.ModuleBuilder = require("./src/modulebuilder");
+module.exports.ModuleBuilderWat = require("./src/modulebuilder_wat");
 module.exports.buildProtoboard = require("./src/protoboard");

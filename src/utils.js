@@ -166,6 +166,21 @@ function toHexString(byteArray) {
     }).join("");
 }
 
+function ident(text) {
+    if (typeof text === "string") {
+        let lines = text.split("\n");
+        for (let i=0; i<lines.length; i++) {
+            if (lines[i]) lines[i] = "    "+lines[i];
+        }
+        return lines.join("\n");
+    } else if (Array.isArray(text)) {
+        for (let i=0; i<text.length; i++ ) {
+            text[i] = ident(text[i]);
+        }
+        return text;
+    }
+}
+
 module.exports.toNumber = toNumber;
 module.exports.u32 = u32;
 module.exports.u64 = u64;
@@ -175,3 +190,4 @@ module.exports.varint32 = varint32;
 module.exports.varint64 = varint64;
 module.exports.string = string;
 module.exports.toHexString = toHexString;
+module.exports.ident = ident;

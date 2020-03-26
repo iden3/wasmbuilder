@@ -18,10 +18,10 @@
 */
 
 
-const FunctionBuilder = require("./functionbuilder.js");
+const FunctionBuilderWat = require("./functionbuilder_wat.js");
 const utils = require("./utils.js");
 
-class ModuleBuilder {
+class ModuleBuilderWat {
 
     constructor() {
         this.functions = [];
@@ -41,29 +41,38 @@ class ModuleBuilder {
     }
 
     build() {
+        const src = [];
         this._setSignatures();
-        return new Uint8Array([
-            ...utils.u32(0x6d736100),
-            ...utils.u32(1),
-            ...this._buildType(),
-            ...this._buildImport(),
-            ...this._buildFunctionDeclarations(),
-            ...this._buildFunctionsTable(),
-            ...this._buildExports(),
-            ...this._buildElements(),
-            ...this._buildCode(),
-            ...this._buildData()
-        ]);
+        src.push(this._buildType());
+        src.push(this._buildImport());
+        if (this.functionsTable.length>0) {
+            src.push(this._buildFunctionsTable());
+        }
+        if (this.exports.length > 0) {
+            src.push(this._buildExports());
+        }
+        if (this.functionsTable.length>0) {
+            src.push(this._buildElements());
+        }
+        if (this.nInternalFunctions>0) {
+            src.push(this._buildFunctions());
+        }
+        src.push(this._buildData());
+        return [
+            "(module",
+            utils.ident(src),
+            ")"
+        ];
     }
 
-    addFunction(fnName) {
+    addFunction(fnName, comment) {
         if (typeof(this.functionIdxByName[fnName]) !== "undefined")
             throw new Error(`Function already defined: ${fnName}`);
 
         const idx = this.functions.length;
         this.functionIdxByName[fnName] = idx;
 
-        this.functions.push(new FunctionBuilder(this, fnName, "internal"));
+        this.functions.push(new FunctionBuilderWat(this, fnName, "internal", comment));
 
         this.nInternalFunctions++;
         return this.functions[idx];
@@ -82,7 +91,7 @@ class ModuleBuilder {
         const idx = this.functions.length;
         this.functionIdxByName[fnName] = idx;
 
-        this.functions.push(new FunctionBuilder(this, fnName, "import", moduleName, fieldName));
+        this.functions.push(new FunctionBuilderWat(this, fnName, "import", moduleName, fieldName));
 
         this.nImportFunctions ++;
         return this.functions[idx];
@@ -152,157 +161,91 @@ class ModuleBuilder {
         const signatureIdxByName = {};
         if (this.functionsTable.length>0) {
             const signature = this.functions[this.functionsTable[0]].getSignature();
-            const signatureName = "s_"+utils.toHexString(signature);
+            const signatureName = this.functions[this.functionsTable[0]].getSignatureName();
             signatureIdxByName[signatureName] = 0;
             this.signatures.push(signature);
         }
         for (let i=0; i<this.functions.length; i++) {
             const signature = this.functions[i].getSignature();
-            const signatureName = "s_"+utils.toHexString(signature);
+            const signatureName = this.functions[i].getSignatureName();
             if (typeof(signatureIdxByName[signatureName]) === "undefined") {
                 signatureIdxByName[signatureName] = this.signatures.length;
                 this.signatures.push(signature);
             }
 
             this.functions[i].signatureIdx = signatureIdxByName[signatureName];
+            this.functions[i].signatureName = signatureName;
         }
 
-    }
-
-    _buildSection(sectionType, section) {
-        return [sectionType, ...utils.varuint32(section.length), ...section];
     }
 
     _buildType() {
-        return this._buildSection(
-            0x01,
-            [
-                ...utils.varuint32(this.signatures.length),
-                ...[].concat(...this.signatures)
-            ]
-        );
+        return this.signatures;
     }
 
     _buildImport() {
-        const entries = [];
-        entries.push([
-            ...utils.string(this.memory.moduleName),
-            ...utils.string(this.memory.fieldName),
-            0x02,
-            0x00,   //Flags no init valua
-            ...utils.varuint32(this.memory.pagesSize)
-        ]);
+        const src = [];
+        src.push(`(import "${this.memory.moduleName}" "${this.memory.fieldName}" (memory ${this.memory.pagesSize}))`);
         for (let i=0; i< this.nImportFunctions; i++) {
-            entries.push([
-                ...utils.string(this.functions[i].moduleName),
-                ...utils.string(this.functions[i].fieldName),
-                0x00,
-                ...utils.varuint32(this.functions[i].signatureIdx)
-            ]);
+            src.push(`(import "${this.functions[i].moduleName}" "${this.functions[i].fieldName}" (func $${this.functions[i].fnName} (type $${this.functions[i].getSignatureName()})))`);
         }
-        return this._buildSection(
-            0x02,
-            utils.varuint32(entries.length).concat(...entries)
-        );
-    }
-
-    _buildFunctionDeclarations() {
-        const entries = [];
-        for (let i=this.nImportFunctions; i< this.nImportFunctions + this.nInternalFunctions; i++) {
-            entries.push(...utils.varuint32(this.functions[i].signatureIdx));
-        }
-        return this._buildSection(
-            0x03,
-            [
-                ...utils.varuint32(entries.length),
-                ...[...entries]
-            ]
-        );
+        return src;
     }
 
     _buildFunctionsTable() {
-        if (this.functionsTable.length == 0) return [];
-        return this._buildSection(
-            0x04,
-            [
-                ...utils.varuint32(1),
-                0x70, 0, ...utils.varuint32(this.functionsTable.length)
-            ]
-        );
+        return `(table ${this.functionsTable.length} anyfunc)`;
     }
 
     _buildElements() {
-        if (this.functionsTable.length == 0) return [];
-        const entries = [];
+        let funcs="";
         for (let i=0; i<this.functionsTable.length; i++) {
-            entries.push(...utils.varuint32(this.functionsTable[i]));
+            funcs += " $"+this.functions[this.functionsTable[i]].fnName;
         }
-        return this._buildSection(
-            0x09,
-            [
-                ...utils.varuint32(1),      // 1 entry
-                ...utils.varuint32(0),      // Table (0 in MVP)
-                0x41,                       // offset 0
-                ...utils.varint32(0),
-                0x0b,
-                ...utils.varuint32(this.functionsTable.length), // Number of elements
-                ...[...entries]
-            ]
-        );
+        return `(elem (i32.const 0) ${funcs})`;
     }
 
     _buildExports() {
-        const entries = [];
+        const src = [];
         for (let i=0; i< this.exports.length; i++) {
-            entries.push([
-                ...utils.string(this.exports[i].exportName),
-                0x00,
-                ...utils.varuint32(this.exports[i].idx)
-            ]);
+            src.push(`(export "${this.exports[i].exportName}" (func $${this.functions[this.exports[i].idx].fnName}))`);
         }
-        return this._buildSection(
-            0x07,
-            utils.varuint32(entries.length).concat(...entries)
-        );
+        return src;
     }
 
-    _buildCode() {
-        const entries = [];
+    _buildFunctions() {
+        const src = [];
         for (let i=this.nImportFunctions; i< this.nImportFunctions + this.nInternalFunctions; i++) {
-            entries.push(this.functions[i].getBody());
+            src.push(this.functions[i].getBody());
         }
-        return this._buildSection(
-            0x0a,
-            utils.varuint32(entries.length).concat(...entries)
-        );
+        return src;
     }
 
     _buildData() {
-        const entries = [];
-        entries.push([
-            0x00,
-            0x41,
-            0x00,
-            0x0b,
-            0x04,
-            ...utils.u32(this.free)
-        ]);
+        const src = [];
+        const buf = Buffer.alloc(4);
+        buf.writeUInt32LE(this.free, 0);
+        src.push(`(data (i32.const 0) ${bytes2string(buf)})`);
         for (let i=0; i< this.datas.length; i++) {
-            entries.push([
-                0x00,
-                0x41,
-                ...utils.varint32(this.datas[i].offset),
-                0x0b,
-                ...utils.varuint32(this.datas[i].bytes.length),
-                ...this.datas[i].bytes,
-            ]);
+            src.push(`(data (i32.const ${this.datas[i].offset}) ${bytes2string(this.datas[i].bytes)})`);
         }
-        return this._buildSection(
-            0x0b,
-            utils.varuint32(entries.length).concat(...entries)
-        );
+        return src;
+
+        function bytes2string(b) {
+            let S = "\"";
+            for (let i=0; i<b.length; i++) {
+                if (b[i]<32 || b[i] >126 || b[i] == 34 || b[i]==92) {
+                    let h=b[i].toString(16);
+                    while (h.length<2) h = "0"+h;
+                    S += "\\" + h;
+                } else {
+                    S += String.fromCharCode(b[i]);
+                }
+            }
+            S +=  "\"";
+            return S;
+        }
     }
 
 }
 
-module.exports = ModuleBuilder;
+module.exports = ModuleBuilderWat;

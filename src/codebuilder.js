@@ -256,6 +256,10 @@ class CodeBuilder {
         return [...[].concat(...args), 0x10, ...utils.varuint32(idx)];
     }
 
+    call_indirect(fnIdx, ...args) {
+        return [...[].concat(...args), ...fnIdx, 0x11, 0, 0];
+    }
+
     if(condCode, thenCode, elseCode) {
         if (elseCode) {
             return [...condCode, 0x04, 0x40, ...thenCode, 0x05, ...elseCode, 0x0b];
@@ -335,6 +339,9 @@ class CodeBuilder {
 
     unreachable() { return [ 0x0 ]; }
 
+    current_memory() { return [ 0x3f, 0]; }
+
+    comment() { return []; }
 }
 
 module.exports = CodeBuilder;
