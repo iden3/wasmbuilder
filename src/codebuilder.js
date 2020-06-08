@@ -307,7 +307,8 @@ class CodeBuilder {
     i64_shr_u(op1code, op2code) { return [...op1code, ...op2code, 0x88]; }
     i64_extend_i32_s(op1code) { return [...op1code, 0xac]; }
     i64_extend_i32_u(op1code) { return [...op1code, 0xad]; }
-
+    i64_clz(op1code) { return [...op1code, 0x79]; }
+    i64_ctz(op1code) { return [...op1code, 0x7a]; }
 
     i32_eqz(op1code) { return [...op1code, 0x45]; }
     i32_eq(op1code, op2code) { return [...op1code, ...op2code, 0x46]; }
@@ -336,6 +337,8 @@ class CodeBuilder {
     i32_rotl(op1code, op2code) { return [...op1code, ...op2code, 0x77]; }
     i32_rotr(op1code, op2code) { return [...op1code, ...op2code, 0x78]; }
     i32_wrap_i64(op1code) { return [...op1code, 0xa7]; }
+    i32_clz(op1code) { return [...op1code, 0x67]; }
+    i32_ctz(op1code) { return [...op1code, 0x68]; }
 
     unreachable() { return [ 0x0 ]; }
 
