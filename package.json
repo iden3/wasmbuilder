@@ -1,6 +1,6 @@
 {
   "name": "wasmbuilder",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Tool to build wasm programs by hand.",
   "main": "index.js",
   "scripts": {
