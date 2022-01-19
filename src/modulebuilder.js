@@ -20,7 +20,6 @@
 
 const FunctionBuilder = require("./functionbuilder.js");
 const utils = require("./utils.js");
-const { TextEncoder, TextDecode } = require("util");
 
 class ModuleBuilder {
 
@@ -143,7 +142,7 @@ class ModuleBuilder {
     }
 
     allocString(s) {
-        const encoder = new TextEncoder();
+        const encoder = new globalThis.TextEncoder();
         const uint8array = encoder.encode(s);
         return this.alloc([...uint8array, 0]);
     }
