@@ -17,7 +17,6 @@
     along with websnark. If not, see <https://www.gnu.org/licenses/>.
 */
 
-const bigInt = require("big-integer");
 const ModuleBuilder = require("./modulebuilder");
 
 async function buildProtoboard(builder, defBytes, bitsPerBytes) {
@@ -64,7 +63,7 @@ async function buildProtoboard(builder, defBytes, bitsPerBytes) {
             log64: function (c1, c2) {
                 if (c1<0) c1 = 0x100000000+c1;
                 if (c2<0) c2 = 0x100000000+c2;
-                const n = bigInt(c1) +  bigInt(c2).shiftLeft(32);
+                const n = BigInt(c1) + (BigInt(c2) << 32n);
                 let s=n.toString(16);
                 while (s.length<16) s = "0"+s;
                 protoboard.log(s + ": " + n.toString());
@@ -134,17 +133,18 @@ class Protoboard {
         const words = Math.floor((nBytes -1)/4)+1;
         let p = pos;
 
-        const CHUNK = bigInt.one.shiftLeft(this.bitsPerBytes);
+        const CHUNK = 1n << BigInt(this.bitsPerBytes);
 
         for (let i=0; i<nums.length; i++) {
-            let v = bigInt(nums[i]);
+            let v = BigInt(nums[i]);
             for (let j=0; j<words; j++) {
-                const rd = v.divmod(CHUNK);
-                this.i32[p>>2] = rd.remainder.toJSNumber();
-                v = rd.quotient;
+                const quotient = v / CHUNK;
+                const remainder = v % CHUNK;
+                this.i32[p>>2] = Number(remainder);
+                v = quotient;
                 p += 4;
             }
-            if (!v.isZero()) {
+            if (v !== 0n) {
                 throw new Error("Expected v to be 0");
             }
         }
@@ -165,19 +165,19 @@ class Protoboard {
 
         const words = Math.floor((nBytes -1)/4)+1;
 
-        const CHUNK = bigInt.one.shiftLeft(this.bitsPerBytes);
+        const CHUNK = 1n << BigInt(this.bitsPerBytes);
 
 
         const nums = [];
         for (let i=0; i<nElements; i++) {
-            let acc = bigInt.zero;
+            let acc = 0n;
             for (let j=words-1; j>=0; j--) {
-                acc = acc.times(CHUNK);
+                acc = acc * CHUNK;
                 let v = this.i32[(pos>>2)+j];
                 if (this.bitsPerBytes <32) {
                     if (v&0x80000000) v = v-0x100000000;
                 }
-                acc = acc.add(v);
+                acc = acc + v;
             }
             nums.push(acc);
             pos += words*4;
