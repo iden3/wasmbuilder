@@ -4,6 +4,8 @@
   "description": "Tool to build wasm programs by hand.",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
     "test": "mocha"
   },
   "repository": {
@@ -19,6 +21,7 @@
   "license": "GPL-3.0",
   "devDependencies": {
     "eslint": "^8.17.0",
+    "eslint-plugin-mocha": "^10.0.5",
     "mocha": "^10.0.0"
   },
   "dependencies": {
