@@ -17,14 +17,8 @@
     along with websnark. If not, see <https://www.gnu.org/licenses/>.
 */
 
-/* globals WebAssembly */
 const bigInt = require("big-integer");
 const ModuleBuilder = require("./modulebuilder");
-
-function buf2hex(buffer) { // buffer is an ArrayBuffer
-    return Array.prototype.map.call(new Uint8Array(buffer), x => ("00" + x.toString(16)).slice(-2)).join("");
-}
-
 
 async function buildProtoboard(builder, defBytes, bitsPerBytes) {
     const protoboard = new Protoboard();
@@ -151,11 +145,9 @@ class Protoboard {
                 p += 4;
             }
             if (!v.isZero()) {
-                throw new Error('Expected v to be 0');
+                throw new Error("Expected v to be 0");
             }
-/*            this.i32[p>>2] = bigInt(nums[i]).shiftRight( (words-1)*this.bitsPerBytes).toJSNumber();
-            p += 4;
-*/        }
+        }
 
         return pos;
     }
