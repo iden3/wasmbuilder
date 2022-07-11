@@ -1,16 +1,23 @@
 {
   "name": "wasmbuilder",
+  "type": "module",
   "version": "0.0.12",
   "description": "Tool to build wasm programs by hand.",
-  "main": "index.js",
+  "main": "./build/main.cjs",
+  "module": "./main.js",
+  "exports": {
+    "import": "./main.js",
+    "require": "./build/main.cjs"
+  },
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
-    "test": "mocha"
+    "test": "mocha",
+    "build": "rollup -c rollup.cjs.config.js"
   },
   "repository": {
     "type": "git",
-    "url": "view-source:https://github.com/iden3/wasmbuilder"
+    "url": "https://github.com/iden3/wasmbuilder"
   },
   "keywords": [
     "wasm",
@@ -23,6 +30,7 @@
   "devDependencies": {
     "eslint": "^8.17.0",
     "eslint-plugin-mocha": "^10.0.5",
-    "mocha": "^10.0.0"
+    "mocha": "^10.0.0",
+    "rollup": "^2.38.5"
   }
 }
