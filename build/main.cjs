@@ -1741,7 +1741,7 @@ class Protoboard {
                 if (this.bitsPerBytes <32) {
                     if (v&0x80000000) v = v-0x100000000;
                 }
-                acc = acc + v;
+                acc = acc + BigInt(v);
             }
             nums.push(acc);
             pos += words*4;
