@@ -1,7 +1,7 @@
 {
   "name": "wasmbuilder",
   "type": "module",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Tool to build wasm programs by hand.",
   "main": "./build/main.cjs",
   "module": "./main.js",
