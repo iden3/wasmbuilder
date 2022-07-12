@@ -17,23 +17,23 @@
     along with wasmbuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-function toNumber(n) {
+export function toNumber(n) {
     return BigInt(n);
 }
 
-function isNegative(n) {
+export function isNegative(n) {
     return n < 0n;
 }
 
-function isZero(n) {
+export function isZero(n) {
     return n === 0n;
 }
 
-function bitLength(n) {
+export function bitLength(n) {
     return n.toString(2).length;
 }
 
-function u32(n) {
+export function u32(n) {
     const b = [];
     const v = toNumber(n);
     b.push(Number(v & 0xFFn));
@@ -43,7 +43,7 @@ function u32(n) {
     return b;
 }
 
-function u64(n) {
+export function u64(n) {
     const b = [];
     const v = toNumber(n);
     b.push(Number(v & 0xFFn));
@@ -57,7 +57,7 @@ function u64(n) {
     return b;
 }
 
-function toUTF8Array(str) {
+export function toUTF8Array(str) {
     var utf8 = [];
     for (var i=0; i < str.length; i++) {
         var charcode = str.charCodeAt(i);
@@ -88,12 +88,12 @@ function toUTF8Array(str) {
     return utf8;
 }
 
-function string(str) {
+export function string(str) {
     const bytes = toUTF8Array(str);
     return [ ...varuint32(bytes.length), ...bytes ];
 }
 
-function varuint(n) {
+export function varuint(n) {
     const code = [];
     let v = toNumber(n);
     if (isNegative(v)) throw new Error("Number cannot be negative");
@@ -108,7 +108,7 @@ function varuint(n) {
     return code;
 }
 
-function varint(_n) {
+export function varint(_n) {
     let n, sign;
     const bits = bitLength(_n);
     if (_n<0) {
@@ -132,7 +132,7 @@ function varint(_n) {
     return code;
 }
 
-function varint32(n) {
+export function varint32(n) {
     let v = toNumber(n);
     if (v > 0xFFFFFFFFn) throw new Error("Number too big");
     if (v > 0x7FFFFFFFn) v = v - 0x100000000n;
@@ -141,7 +141,7 @@ function varint32(n) {
     return varint(v);
 }
 
-function varint64(n) {
+export function varint64(n) {
     let v = toNumber(n);
     if (v > 0xFFFFFFFFFFFFFFFFn) throw new Error("Number too big");
     if (v > 0x7FFFFFFFFFFFFFFFn) v = v - 0x10000000000000000n;
@@ -150,25 +150,25 @@ function varint64(n) {
     return varint(v);
 }
 
-function varuint32(n) {
+export function varuint32(n) {
     let v = toNumber(n);
     if (v > 0xFFFFFFFFn) throw new Error("Number too big");
     return varuint(v);
 }
 
-function varuint64(n) {
+export function varuint64(n) {
     let v = toNumber(n);
     if (v > 0xFFFFFFFFFFFFFFFFn) throw new Error("Number too big");
     return varuint(v);
 }
 
-function toHexString(byteArray) {
+export function toHexString(byteArray) {
     return Array.from(byteArray, function(byte) {
         return ("0" + (byte & 0xFF).toString(16)).slice(-2);
     }).join("");
 }
 
-function ident(text) {
+export function ident(text) {
     if (typeof text === "string") {
         let lines = text.split("\n");
         for (let i=0; i<lines.length; i++) {
@@ -182,17 +182,3 @@ function ident(text) {
         return text;
     }
 }
-
-module.exports.toNumber = toNumber;
-module.exports.isNegative = isNegative;
-module.exports.isZero = isZero;
-module.exports.bitLength = bitLength;
-module.exports.u32 = u32;
-module.exports.u64 = u64;
-module.exports.varuint32 = varuint32;
-module.exports.varuint64 = varuint64;
-module.exports.varint32 = varint32;
-module.exports.varint64 = varint64;
-module.exports.string = string;
-module.exports.toHexString = toHexString;
-module.exports.ident = ident;

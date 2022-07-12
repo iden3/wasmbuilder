@@ -1,6 +1,6 @@
-const assert = require("assert");
+import assert from "assert";
 
-const buildProtoboard = require("../index.js").buildProtoboard;
+import { buildProtoboard } from "../main.js";
 
 describe("Basic protoboard test", () => {
     it("Should generate a basic protoboard", async () => {

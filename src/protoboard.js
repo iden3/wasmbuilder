@@ -17,9 +17,9 @@
     along with websnark. If not, see <https://www.gnu.org/licenses/>.
 */
 
-const ModuleBuilder = require("./modulebuilder");
+import { ModuleBuilder } from "./modulebuilder.js";
 
-async function buildProtoboard(builder, defBytes, bitsPerBytes) {
+export async function buildProtoboard(builder, defBytes, bitsPerBytes) {
     const protoboard = new Protoboard();
 
     protoboard.defBytes = defBytes;
@@ -187,5 +187,3 @@ class Protoboard {
         return nums;
     }
 }
-
-module.exports = buildProtoboard;
