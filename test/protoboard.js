@@ -45,4 +45,15 @@ describe("Basic protoboard test", () => {
         assert.equal(logs[0], "0000002c: 44");
         assert.equal(logs[1], "0000000000000042: 66");
     });
+
+    it("Can `alloc`, `set`, and `get` data", async() => {
+        const n8q=48;
+
+        const pb = await buildProtoboard(function() {}, n8q);
+
+        const e1 = pb.alloc(n8q*2);
+        const pos = pb.set(e1, 1n);
+
+        assert.equal(pb.get(pos), 1n);
+    });
 });
