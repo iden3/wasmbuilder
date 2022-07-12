@@ -17,43 +17,43 @@
     along with wasmbuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-const bigInt = require("big-integer");
-
 function toNumber(n) {
-    let v;
-    if (typeof n=="string") {
-        if (n.slice(0,2).toLowerCase() == "0x") {
-            v = bigInt(n.slice(2),16);
-        } else {
-            v = bigInt(n);
-        }
-    } else {
-        v = bigInt(n);
-    }
-    return v;
+    return BigInt(n);
+}
+
+function isNegative(n) {
+    return n < 0n;
+}
+
+function isZero(n) {
+    return n === 0n;
+}
+
+function bitLength(n) {
+    return n.toString(2).length;
 }
 
 function u32(n) {
     const b = [];
     const v = toNumber(n);
-    b.push(v.and(0xFF).toJSNumber());
-    b.push(v.shiftRight(8).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(16).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(24).and(0xFF).toJSNumber());
+    b.push(Number(v & 0xFFn));
+    b.push(Number(v >> 8n & 0xFFn));
+    b.push(Number(v >> 16n & 0xFFn));
+    b.push(Number(v >> 24n & 0xFFn));
     return b;
 }
 
 function u64(n) {
     const b = [];
     const v = toNumber(n);
-    b.push(v.and(0xFF).toJSNumber());
-    b.push(v.shiftRight(8).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(16).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(24).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(32).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(40).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(48).and(0xFF).toJSNumber());
-    b.push(v.shiftRight(56).and(0xFF).toJSNumber());
+    b.push(Number(v & 0xFFn));
+    b.push(Number(v >> 8n & 0xFFn));
+    b.push(Number(v >> 16n & 0xFFn));
+    b.push(Number(v >> 24n & 0xFFn));
+    b.push(Number(v >> 32n & 0xFFn));
+    b.push(Number(v >> 40n & 0xFFn));
+    b.push(Number(v >> 48n & 0xFFn));
+    b.push(Number(v >> 56n & 0xFFn));
     return b;
 }
 
@@ -96,10 +96,10 @@ function string(str) {
 function varuint(n) {
     const code = [];
     let v = toNumber(n);
-    if (v.isNegative()) throw new Error("Number cannot be negative");
-    while (!v.isZero()) {
-        code.push(v.and(0x7F).toJSNumber());
-        v = v.shiftRight(7);
+    if (isNegative(v)) throw new Error("Number cannot be negative");
+    while (!isZero(v)) {
+        code.push(Number(v & 0x7Fn));
+        v = v >> 7n;
     }
     if (code.length==0) code.push(0);
     for (let i=0; i<code.length-1; i++) {
@@ -110,20 +110,20 @@ function varuint(n) {
 
 function varint(_n) {
     let n, sign;
-    const bits = _n.bitLength().toJSNumber();
+    const bits = bitLength(_n);
     if (_n<0) {
         sign = true;
-        n = bigInt.one.shiftLeft(bits).add(_n);
+        n = 1n << BigInt(bits) + _n;
     } else {
         sign = false;
         n = toNumber(_n);
     }
     const paddingBits = 7 - (bits % 7);
 
-    const padding = bigInt.one.shiftLeft(paddingBits).minus(1).shiftLeft(bits);
+    const padding = ((1n << BigInt(paddingBits)) - 1n) << BigInt(bits);
     const paddingMask = ((1 << (7 - paddingBits))-1) | 0x80;
 
-    const code = varuint(n.add(padding));
+    const code = varuint(n + padding);
 
     if (!sign) {
         code[code.length-1] = code[code.length-1] & paddingMask;
@@ -134,29 +134,31 @@ function varint(_n) {
 
 function varint32(n) {
     let v = toNumber(n);
-    if (v.greater(bigInt("FFFFFFFF", 16))) throw new Error("Number too big");
-    if (v.greater(bigInt("7FFFFFFF", 16))) v = v.minus(bigInt("100000000",16));
-    if (v.lesser(bigInt("-80000000", 16))) throw new Error("Number too small");
+    if (v > 0xFFFFFFFFn) throw new Error("Number too big");
+    if (v > 0x7FFFFFFFn) v = v - 0x100000000n;
+    // bigInt("-80000000", 16) as base10
+    if (v < -2147483648n) throw new Error("Number too small");
     return varint(v);
 }
 
 function varint64(n) {
     let v = toNumber(n);
-    if (v.greater(bigInt("FFFFFFFFFFFFFFFF", 16))) throw new Error("Number too big");
-    if (v.greater(bigInt("7FFFFFFFFFFFFFFF", 16))) v = v.minus(bigInt("10000000000000000",16));
-    if (v.lesser(bigInt("-8000000000000000", 16))) throw new Error("Number too small");
+    if (v > 0xFFFFFFFFFFFFFFFFn) throw new Error("Number too big");
+    if (v > 0x7FFFFFFFFFFFFFFFn) v = v - 0x10000000000000000n;
+    // bigInt("-8000000000000000", 16) as base10
+    if (v < -9223372036854775808n) throw new Error("Number too small");
     return varint(v);
 }
 
 function varuint32(n) {
     let v = toNumber(n);
-    if (v.greater(bigInt("FFFFFFFF", 16))) throw new Error("Number too big");
+    if (v > 0xFFFFFFFFn) throw new Error("Number too big");
     return varuint(v);
 }
 
 function varuint64(n) {
     let v = toNumber(n);
-    if (v.greater(bigInt("FFFFFFFFFFFFFFFF", 16))) throw new Error("Number too big");
+    if (v > 0xFFFFFFFFFFFFFFFFn) throw new Error("Number too big");
     return varuint(v);
 }
 
@@ -182,6 +184,9 @@ function ident(text) {
 }
 
 module.exports.toNumber = toNumber;
+module.exports.isNegative = isNegative;
+module.exports.isZero = isZero;
+module.exports.bitLength = bitLength;
 module.exports.u32 = u32;
 module.exports.u64 = u64;
 module.exports.varuint32 = varuint32;
