@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { buildProtoboard } from "../index.js";
+import { buildProtoboard } from "../main.js";
 
 describe("Basic protoboard test", () => {
     it("Should generate a basic protoboard", async () => {
