@@ -30,7 +30,11 @@ export function isZero(n) {
 }
 
 export function bitLength(n) {
-    return n.toString(2).length;
+    if (isNegative(n)) {
+        return n.toString(2).length - 1; // discard the - sign
+    } else {
+        return n.toString(2).length;
+    }
 }
 
 export function u32(n) {
