@@ -34,7 +34,11 @@ function isZero(n) {
 }
 
 function bitLength(n) {
-    return n.toString(2).length;
+    if (isNegative(n)) {
+        return n.toString(2).length - 1; // discard the - sign
+    } else {
+        return n.toString(2).length;
+    }
 }
 
 function u32(n) {
@@ -103,7 +107,7 @@ function varint(_n) {
     const bits = bitLength(_n);
     if (_n<0) {
         sign = true;
-        n = 1n << BigInt(bits) + _n;
+        n = (1n << BigInt(bits)) + _n;
     } else {
         sign = false;
         n = toNumber(_n);
