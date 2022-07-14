@@ -117,7 +117,7 @@ export function varint(_n) {
     const bits = bitLength(_n);
     if (_n<0) {
         sign = true;
-        n = 1n << BigInt(bits) + _n;
+        n = (1n << BigInt(bits)) + _n;
     } else {
         sign = false;
         n = toNumber(_n);
