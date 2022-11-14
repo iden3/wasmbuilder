@@ -26,11 +26,11 @@ function toNumber(n) {
 }
 
 function isNegative(n) {
-    return n < 0n;
+    return n < BigInt(0);
 }
 
 function isZero(n) {
-    return n === 0n;
+    return n === BigInt(0);
 }
 
 function bitLength(n) {
@@ -44,10 +44,10 @@ function bitLength(n) {
 function u32(n) {
     const b = [];
     const v = toNumber(n);
-    b.push(Number(v & 0xFFn));
-    b.push(Number(v >> 8n & 0xFFn));
-    b.push(Number(v >> 16n & 0xFFn));
-    b.push(Number(v >> 24n & 0xFFn));
+    b.push(Number(v & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(8) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(16) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(24) & BigInt(0xFF)));
     return b;
 }
 
@@ -92,8 +92,8 @@ function varuint(n) {
     let v = toNumber(n);
     if (isNegative(v)) throw new Error("Number cannot be negative");
     while (!isZero(v)) {
-        code.push(Number(v & 0x7Fn));
-        v = v >> 7n;
+        code.push(Number(v & BigInt(0x7F)));
+        v = v >> BigInt(7);
     }
     if (code.length==0) code.push(0);
     for (let i=0; i<code.length-1; i++) {
@@ -107,14 +107,14 @@ function varint(_n) {
     const bits = bitLength(_n);
     if (_n<0) {
         sign = true;
-        n = (1n << BigInt(bits)) + _n;
+        n = (BigInt(1) << BigInt(bits)) + _n;
     } else {
         sign = false;
         n = toNumber(_n);
     }
     const paddingBits = 7 - (bits % 7);
 
-    const padding = ((1n << BigInt(paddingBits)) - 1n) << BigInt(bits);
+    const padding = ((BigInt(1) << BigInt(paddingBits)) - BigInt(1)) << BigInt(bits);
     const paddingMask = ((1 << (7 - paddingBits))-1) | 0x80;
 
     const code = varuint(n + padding);
@@ -128,25 +128,25 @@ function varint(_n) {
 
 function varint32(n) {
     let v = toNumber(n);
-    if (v > 0xFFFFFFFFn) throw new Error("Number too big");
-    if (v > 0x7FFFFFFFn) v = v - 0x100000000n;
+    if (v > BigInt(0xFFFFFFFF)) throw new Error("Number too big");
+    if (v > BigInt(0x7FFFFFFF)) v = v - BigInt(0x100000000);
     // bigInt("-80000000", 16) as base10
-    if (v < -2147483648n) throw new Error("Number too small");
+    if (v < BigInt(-2147483648)) throw new Error("Number too small");
     return varint(v);
 }
 
 function varint64(n) {
     let v = toNumber(n);
-    if (v > 0xFFFFFFFFFFFFFFFFn) throw new Error("Number too big");
-    if (v > 0x7FFFFFFFFFFFFFFFn) v = v - 0x10000000000000000n;
+    if (v > BigInt("0xFFFFFFFFFFFFFFFF")) throw new Error("Number too big");
+    if (v > BigInt("0x7FFFFFFFFFFFFFFF")) v = v - BigInt("0x10000000000000000");
     // bigInt("-8000000000000000", 16) as base10
-    if (v < -9223372036854775808n) throw new Error("Number too small");
+    if (v < BigInt("-9223372036854775808")) throw new Error("Number too small");
     return varint(v);
 }
 
 function varuint32(n) {
     let v = toNumber(n);
-    if (v > 0xFFFFFFFFn) throw new Error("Number too big");
+    if (v > BigInt(0xFFFFFFFF)) throw new Error("Number too big");
     return varuint(v);
 }
 
@@ -1631,7 +1631,7 @@ async function buildProtoboard(builder, defBytes, bitsPerBytes) {
             log64: function (c1, c2) {
                 if (c1<0) c1 = 0x100000000+c1;
                 if (c2<0) c2 = 0x100000000+c2;
-                const n = BigInt(c1) + (BigInt(c2) << 32n);
+                const n = BigInt(c1) + (BigInt(c2) << BigInt(32));
                 let s=n.toString(16);
                 while (s.length<16) s = "0"+s;
                 protoboard.log(s + ": " + n.toString());
@@ -1701,7 +1701,7 @@ class Protoboard {
         const words = Math.floor((nBytes -1)/4)+1;
         let p = pos;
 
-        const CHUNK = 1n << BigInt(this.bitsPerBytes);
+        const CHUNK = BigInt(1) << BigInt(this.bitsPerBytes);
 
         for (let i=0; i<nums.length; i++) {
             let v = BigInt(nums[i]);
@@ -1712,7 +1712,7 @@ class Protoboard {
                 v = quotient;
                 p += 4;
             }
-            if (v !== 0n) {
+            if (v !== BigInt(0)) {
                 throw new Error("Expected v to be 0");
             }
         }
@@ -1733,12 +1733,12 @@ class Protoboard {
 
         const words = Math.floor((nBytes -1)/4)+1;
 
-        const CHUNK = 1n << BigInt(this.bitsPerBytes);
+        const CHUNK = BigInt(1) << BigInt(this.bitsPerBytes);
 
 
         const nums = [];
         for (let i=0; i<nElements; i++) {
-            let acc = 0n;
+            let acc = BigInt(0);
             for (let j=words-1; j>=0; j--) {
                 acc = acc * CHUNK;
                 let v = this.i32[(pos>>2)+j];

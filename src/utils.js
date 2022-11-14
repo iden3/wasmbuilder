@@ -22,11 +22,11 @@ export function toNumber(n) {
 }
 
 export function isNegative(n) {
-    return n < 0n;
+    return n < BigInt(0);
 }
 
 export function isZero(n) {
-    return n === 0n;
+    return n === BigInt(0);
 }
 
 export function bitLength(n) {
@@ -40,24 +40,24 @@ export function bitLength(n) {
 export function u32(n) {
     const b = [];
     const v = toNumber(n);
-    b.push(Number(v & 0xFFn));
-    b.push(Number(v >> 8n & 0xFFn));
-    b.push(Number(v >> 16n & 0xFFn));
-    b.push(Number(v >> 24n & 0xFFn));
+    b.push(Number(v & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(8) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(16) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(24) & BigInt(0xFF)));
     return b;
 }
 
 export function u64(n) {
     const b = [];
     const v = toNumber(n);
-    b.push(Number(v & 0xFFn));
-    b.push(Number(v >> 8n & 0xFFn));
-    b.push(Number(v >> 16n & 0xFFn));
-    b.push(Number(v >> 24n & 0xFFn));
-    b.push(Number(v >> 32n & 0xFFn));
-    b.push(Number(v >> 40n & 0xFFn));
-    b.push(Number(v >> 48n & 0xFFn));
-    b.push(Number(v >> 56n & 0xFFn));
+    b.push(Number(v & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(8) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(16) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(24) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(32) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(40) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(48) & BigInt(0xFF)));
+    b.push(Number(v >> BigInt(56) & BigInt(0xFF)));
     return b;
 }
 
@@ -102,8 +102,8 @@ export function varuint(n) {
     let v = toNumber(n);
     if (isNegative(v)) throw new Error("Number cannot be negative");
     while (!isZero(v)) {
-        code.push(Number(v & 0x7Fn));
-        v = v >> 7n;
+        code.push(Number(v & BigInt(0x7F)));
+        v = v >> BigInt(7);
     }
     if (code.length==0) code.push(0);
     for (let i=0; i<code.length-1; i++) {
@@ -117,14 +117,14 @@ export function varint(_n) {
     const bits = bitLength(_n);
     if (_n<0) {
         sign = true;
-        n = (1n << BigInt(bits)) + _n;
+        n = (BigInt(1) << BigInt(bits)) + _n;
     } else {
         sign = false;
         n = toNumber(_n);
     }
     const paddingBits = 7 - (bits % 7);
 
-    const padding = ((1n << BigInt(paddingBits)) - 1n) << BigInt(bits);
+    const padding = ((BigInt(1) << BigInt(paddingBits)) - BigInt(1)) << BigInt(bits);
     const paddingMask = ((1 << (7 - paddingBits))-1) | 0x80;
 
     const code = varuint(n + padding);
@@ -138,31 +138,31 @@ export function varint(_n) {
 
 export function varint32(n) {
     let v = toNumber(n);
-    if (v > 0xFFFFFFFFn) throw new Error("Number too big");
-    if (v > 0x7FFFFFFFn) v = v - 0x100000000n;
+    if (v > BigInt(0xFFFFFFFF)) throw new Error("Number too big");
+    if (v > BigInt(0x7FFFFFFF)) v = v - BigInt(0x100000000);
     // bigInt("-80000000", 16) as base10
-    if (v < -2147483648n) throw new Error("Number too small");
+    if (v < BigInt(-2147483648)) throw new Error("Number too small");
     return varint(v);
 }
 
 export function varint64(n) {
     let v = toNumber(n);
-    if (v > 0xFFFFFFFFFFFFFFFFn) throw new Error("Number too big");
-    if (v > 0x7FFFFFFFFFFFFFFFn) v = v - 0x10000000000000000n;
+    if (v > BigInt("0xFFFFFFFFFFFFFFFF")) throw new Error("Number too big");
+    if (v > BigInt("0x7FFFFFFFFFFFFFFF")) v = v - BigInt("0x10000000000000000");
     // bigInt("-8000000000000000", 16) as base10
-    if (v < -9223372036854775808n) throw new Error("Number too small");
+    if (v < BigInt("-9223372036854775808")) throw new Error("Number too small");
     return varint(v);
 }
 
 export function varuint32(n) {
     let v = toNumber(n);
-    if (v > 0xFFFFFFFFn) throw new Error("Number too big");
+    if (v > BigInt(0xFFFFFFFF)) throw new Error("Number too big");
     return varuint(v);
 }
 
 export function varuint64(n) {
     let v = toNumber(n);
-    if (v > 0xFFFFFFFFFFFFFFFFn) throw new Error("Number too big");
+    if (v > BigInt("0xFFFFFFFFFFFFFFFF")) throw new Error("Number too big");
     return varuint(v);
 }
 

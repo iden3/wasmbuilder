@@ -64,8 +64,8 @@ describe("Basic protoboard test", () => {
         const pb = await buildProtoboard(function() {}, n8q);
 
         const e1 = pb.alloc(n8q*2);
-        const pos = pb.set(e1, 1n);
+        const pos = pb.set(e1, BigInt(1));
 
-        assert.equal(pb.get(pos), 1n);
+        assert.equal(pb.get(pos), BigInt(1));
     });
 });

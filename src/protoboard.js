@@ -63,7 +63,7 @@ export async function buildProtoboard(builder, defBytes, bitsPerBytes) {
             log64: function (c1, c2) {
                 if (c1<0) c1 = 0x100000000+c1;
                 if (c2<0) c2 = 0x100000000+c2;
-                const n = BigInt(c1) + (BigInt(c2) << 32n);
+                const n = BigInt(c1) + (BigInt(c2) << BigInt(32));
                 let s=n.toString(16);
                 while (s.length<16) s = "0"+s;
                 protoboard.log(s + ": " + n.toString());
@@ -133,7 +133,7 @@ class Protoboard {
         const words = Math.floor((nBytes -1)/4)+1;
         let p = pos;
 
-        const CHUNK = 1n << BigInt(this.bitsPerBytes);
+        const CHUNK = BigInt(1) << BigInt(this.bitsPerBytes);
 
         for (let i=0; i<nums.length; i++) {
             let v = BigInt(nums[i]);
@@ -144,7 +144,7 @@ class Protoboard {
                 v = quotient;
                 p += 4;
             }
-            if (v !== 0n) {
+            if (v !== BigInt(0)) {
                 throw new Error("Expected v to be 0");
             }
         }
@@ -165,12 +165,12 @@ class Protoboard {
 
         const words = Math.floor((nBytes -1)/4)+1;
 
-        const CHUNK = 1n << BigInt(this.bitsPerBytes);
+        const CHUNK = BigInt(1) << BigInt(this.bitsPerBytes);
 
 
         const nums = [];
         for (let i=0; i<nElements; i++) {
-            let acc = 0n;
+            let acc = BigInt(0);
             for (let j=words-1; j>=0; j--) {
                 acc = acc * CHUNK;
                 let v = this.i32[(pos>>2)+j];
